@@ -30,19 +30,12 @@ func (h *NodeChallengeHandler) NodeChallenge(w http.ResponseWriter, r *http.Requ
 	if err := json.Unmarshal(byteValue, &data); err != nil {
 		log.Fatalf("Error unmarshalling JSON: %v", err)
 	}
-
-	sum := data[0][0]
-	indexCal := 0
-	for i := 1; i < len(data); i++ {
-		vsum := 0
-		if data[i][indexCal] > data[i][indexCal+1] {
-			vsum = data[i][indexCal]
-		} else {
-			vsum = data[i][indexCal+1]
-			indexCal = indexCal + 1
+	for i := len(data) - 2; i >= 0; i-- {
+		for j := 0; j < len(data[i]); j++ {
+			data[i][j] += max(data[i+1][j], data[i+1][j+1])
 		}
-		sum += vsum
 	}
+	sum := data[0][0]
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]int{"sum": sum})
